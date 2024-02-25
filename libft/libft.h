@@ -6,7 +6,7 @@
 /*   By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 15:47:46 by ivalimak          #+#    #+#             */
-/*   Updated: 2024/02/25 17:10:37 by ivalimak         ###   ########.fr       */
+/*   Updated: 2024/02/25 18:51:07 by ivalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,6 +175,7 @@ void	ft_markall(t_vm *vm);
 void	ft_sweep(t_vm *vm);
 void	ft_clean(void);
 void	ft_popall(void);
+void	ft_popblk(void *blk);
 void	ft_popn(size_t blks);
 void	ft_exit(int estat);
 int		ft_return(int rval);

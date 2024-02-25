@@ -6,7 +6,7 @@
 /*   By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/11 18:56:22 by ivalimak          #+#    #+#             */
-/*   Updated: 2023/12/30 13:57:08 by ivalimak         ###   ########.fr       */
+/*   Updated: 2024/02/25 18:44:39 by ivalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,18 +26,17 @@ char	*ft_strremove(const char *s, const char c)
 {
 	size_t	i;
 	char	**arr;
-	char	*tmp;
 	char	*out;
 
-	arr = ft_split(s, c);
+	arr = ft_pusharr(ft_split(s, c));
 	if (!arr)
 		return (NULL);
 	i = 0;
 	out = NULL;
 	while (arr[i])
 	{
-		tmp = ft_strjoin(out, arr[i]);
-		out = tmp;
+		out = ft_strjoin(out, arr[i]);
+		ft_popblk(arr[i++]);
 	}
 	return (out);
 }

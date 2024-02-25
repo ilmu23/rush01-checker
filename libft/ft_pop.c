@@ -6,7 +6,7 @@
 /*   By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/29 19:39:17 by ivalimak          #+#    #+#             */
-/*   Updated: 2024/01/02 15:33:43 by ivalimak         ###   ########.fr       */
+/*   Updated: 2024/02/25 18:50:34 by ivalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,38 @@ void	ft_popn(size_t blks)
 		blks--;
 	}
 }
+
+/** @brief Pops the block blk from the stack, if present
+ *
+ * @param *blk Address of the block to be popped
+ */
+void	ft_popblk(void *blk)
+{
+	t_vm	*vm;
+	size_t	i;
+
+	if (!blk)
+		return ;
+	i = 0;
+	vm = ft_getvm();
+	if (!vm->stacksize)
+	{
+		ft_putendl_fd("GC: pop: stack underflow", 2);
+		ft_exit(E_STACKUF);
+	}
+	while (i < vm->stacksize && vm->stack[i] != blk)
+		i++;
+	if (i == vm->stacksize)
+		return ;
+	ft_debugmsg(GCPOP, "Popping block %p from stack index %u", blk, i);
+	while (i < vm->stacksize - 1)
+	{
+		vm->stack[i] = vm->stack[i + 1];
+		i++;
+	}
+	vm->stacksize--;
+}
+
 
 /** @brief Pops a block from the vm stack
  *
