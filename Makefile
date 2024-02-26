@@ -6,7 +6,7 @@
 #    By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/25 18:02:08 by ivalimak          #+#    #+#              #
-#    Updated: 2024/02/26 11:29:07 by ivalimak         ###   ########.fr        #
+#    Updated: 2024/02/26 13:06:20 by ivalimak         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,6 +43,9 @@ all: $(OBJDIR) $(NAME)
 $(NAME): $(LIBFT) $(OBJS)
 	@echo Compiling $(NAME)...
 	@$(CC) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $(OBJS) -L$(LIBDIR) -lft -o $(NAME)
+ifneq ("$(wildcard ../rush-01)", "")
+	@cp $(NAME) ../
+endif
 
 $(OBJDIR):
 	@echo Creating objdir...
