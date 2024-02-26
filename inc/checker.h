@@ -6,7 +6,7 @@
 /*   By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/25 16:47:39 by ivalimak          #+#    #+#             */
-/*   Updated: 2024/02/25 19:59:22 by ivalimak         ###   ########.fr       */
+/*   Updated: 2024/02/26 11:28:29 by ivalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,12 @@ short	**getsolution(size_t size);
 
 // check.c
 void	checksolution(t_frame *frame, short **grid, size_t size);
+
+// check2.c
+void	checktop(t_frame *frame, short **grid, size_t size, char *err);
+void	checkbot(t_frame *frame, short **grid, size_t size, char *err);
+void	checkleft(t_frame *frame, short **grid, size_t size, char *err);
+void	checkright(t_frame *frame, short **grid, size_t size, char *err);
 
 // utils.c
 void	chk_perror(void);
