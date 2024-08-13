@@ -6,19 +6,20 @@
 /*   By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/25 16:47:39 by ivalimak          #+#    #+#             */
-/*   Updated: 2024/02/26 11:28:29 by ivalimak         ###   ########.fr       */
+/*   Updated: 2024/08/13 16:44:00 by ivalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHECKER_H
 # define CHECKER_H
 # include "libft.h"
+# include <errno.h>
 # include <fcntl.h>
 # include <string.h>
 
-# define SGR_ERR "\e[31m"
+# define SGR_ERR "\e[35m"
 # define SGR_OK "\e[32m"
-# define SGR_KO "\e[35m"
+# define SGR_KO "\e[31m"
 # define SGR_FRM "\e[34m"
 # define SGR_GRD "\e[36m"
 # define SGR_RST "\e[39m"

@@ -6,7 +6,7 @@
 /*   By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/25 17:59:34 by ivalimak          #+#    #+#             */
-/*   Updated: 2024/02/25 19:59:46 by ivalimak         ###   ########.fr       */
+/*   Updated: 2024/08/13 16:40:00 by ivalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@ static char	*format_line(short left, short *mid, short right, size_t size);
 
 void	chk_perror(void)
 {
-	extern int errno;
-
 	ft_dprintf(2, "%schecker: %s%s\n", SGR_ERR, strerror(errno), SGR_RST);
 }
 
