@@ -1,4 +1,6 @@
 *.a
 *.o
+*.txt
+.cache
 checker
 compile_commands.json
