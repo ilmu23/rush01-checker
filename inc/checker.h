@@ -6,13 +6,14 @@
 /*   By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/25 16:47:39 by ivalimak          #+#    #+#             */
-/*   Updated: 2024/08/13 16:44:00 by ivalimak         ###   ########.fr       */
+/*   Updated: 2025/01/07 06:43:01 by ivalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHECKER_H
 # define CHECKER_H
 # include "libft.h"
+# include "ft_stdio/ft_printf.h"
 # include <errno.h>
 # include <fcntl.h>
 # include <string.h>

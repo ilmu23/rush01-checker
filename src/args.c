@@ -6,7 +6,7 @@
 /*   By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/25 17:03:19 by ivalimak          #+#    #+#             */
-/*   Updated: 2024/02/25 19:04:16 by ivalimak         ###   ########.fr       */
+/*   Updated: 2025/01/07 06:42:11 by ivalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ static short	*parsenumbers(char **argarr, size_t argc)
 	i = 0;
 	while (i < argc)
 	{
-		out[i] = ft_atoi(argarr[i]);
+		out[i] = ft_atoi64(argarr[i]);
 		i++;
 	}
 	return (out);
@@ -84,7 +84,7 @@ static int	checkvalues(char *argstring, size_t argc)
 			argstring++;
 		if (!ft_isdigit(*argstring) && *argstring != '+' && *argstring != '-')
 			err = 1;
-		n = ft_atol(argstring);
+		n = ft_atoi64(argstring);
 		if (n < 1 || n > (long)(argc / 4))
 			err = 2;
 		if (*argstring == '+' || *argstring == '-')
