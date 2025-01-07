@@ -6,7 +6,7 @@
 #    By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/25 18:02:08 by ivalimak          #+#    #+#              #
-#    Updated: 2024/02/26 13:06:20 by ivalimak         ###   ########.fr        #
+#    Updated: 2025/01/07 06:38:45 by ivalimak         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,16 +17,19 @@ BUILD	=	normal
 CC 				=	cc
 cflags.common	=	-Wall -Wextra -Werror
 cflags.debug	=	-g
-cflags.debum	=	$(cflags.debug) -D DEBUG_MSG=1
-cflags.asan		=	$(cflags.debug) -fsanitize=address -static-libsan
-cflags.normal	=	
-CFLAGS			=	$(cflags.common) $(cflags.$(BUILD))
+cflags.debugm	=	$(cflags.debug) -D DEBUG_MSG=1
+cflags.fsan		=	$(cflags.debug) -fsanitize=address,undefined
+cflags.normal	=	-Ofast
+cflags.extra	=	
+CFLAGS			=	$(cflags.common) $(cflags.$(BUILD)) $(cflags.extra)
 
 SRCDIR	=	src
 OBJDIR	=	obj
 INCDIR	=	inc
 LIBDIR	=	libft
-LIBFT	=	$(LIBDIR)/libft.a
+
+LFT	=	$(LIBDIR)/libft.a
+INC	=	-I$(INCDIR) -I$(LIBDIR)/$(INCDIR)
 
 SRCFILES	=	main.c \
 				args.c \
@@ -38,32 +41,33 @@ SRCFILES	=	main.c \
 SRCS	=	$(addprefix $(SRCDIR)/, $(SRCFILES))
 OBJS	=	$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS))
 
-all: $(OBJDIR) $(NAME)
+all: $(NAME)
 
-$(NAME): $(LIBFT) $(OBJS)
-	@echo Compiling $(NAME)...
-	@$(CC) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $(OBJS) -L$(LIBDIR) -lft -o $(NAME)
+$(NAME): $(LFT) $(OBJDIR) $(OBJS)
+	@printf "\e[1;38;5;42mCHECKER >\e[m Linking %s\n" $@
+	@$(CC) $(CFLAGS) $(INC) $(OBJS) -L$(LIBDIR) -lft -o $@
+	@printf "\e[1;38;5;42mCHECKER >\e[m \e[1mDone!\e[m\n"
 ifneq ("$(wildcard ../rush-01)", "")
-	@cp $(NAME) ../
+	@cp $@ ../
 endif
 
 $(OBJDIR):
-	@echo Creating objdir...
+	@printf "\e[1;38;5;42mCHECKER >\e[m Creating objdir\n" $@
 	@mkdir -p $(OBJDIR)
 
-$(LIBFT):
-	@make -C $(LIBDIR) BUILD=$(BUILD)
+$(LFT):
+	@make --no-print-directory -C $(LIBDIR) BUILD=$(BUILD) cflags.extra=$(cflags.extra)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
-	@echo Compiling $@
-	@$(CC) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) -c $< -o $@
+	@printf "\e[1;38;5;42mCHECKER >\e[m Compiling %s\n" $@
+	@$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 clean:
-	@make -C $(LIBDIR) clean
+	@make --no-print-directory -C $(LIBDIR) clean
 	@rm -f $(OBJS)
 
 fclean: clean
-	@make -C $(LIBDIR) fclean
+	@make --no-print-directory -C $(LIBDIR) fclean
 	@rm -rf $(OBJDIR)
 	@rm -f $(NAME)
 
