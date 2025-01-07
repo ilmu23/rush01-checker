@@ -1,3 +1,4 @@
 *.a
 *.o
 checker
+compile_commands.json
