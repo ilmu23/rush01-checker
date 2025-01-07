@@ -54,6 +54,10 @@ struct frame {
 # define E_TOO_MANY_LINES		9
 # define E_NOT_ENOUGH_LINES		10
 # define E_STDIN_READ			11
+# define E_PIPE_FAIL			12
+# define E_FORK_FAIL			13
+# define E_EXEC_FAIL			14
+# define E_DUP_FAIL				15
 
 // color codes
 

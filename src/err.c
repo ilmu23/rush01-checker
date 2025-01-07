@@ -12,6 +12,7 @@
 #include "defs.h"
 
 _Noreturn void	err_exit(const u8 err, const char *context) {
+	ft_printf("\x1b[?1049l");
 	switch (err) {
 		case E_INVALID_ARGC:
 			ft_dprintf(2, "checker: invalid argument count");
@@ -46,8 +47,20 @@ _Noreturn void	err_exit(const u8 err, const char *context) {
 		case E_STDIN_READ:
 			ft_dprintf(2, "checker: unable to read from stdin: %s", strerror(errno));
 			break ;
+		case E_PIPE_FAIL:
+			ft_dprintf(2, "checker: failed to create pipe: %s", strerror(errno));
+			break ;
+		case E_FORK_FAIL:
+			ft_dprintf(2, "checker: failed to create child process: %s", strerror(errno));
+			break ;
+		case E_EXEC_FAIL:
+			ft_dprintf(2, "checker: failed to execute command");
+			break ;
+		case E_DUP_FAIL:
+			ft_dprintf(2, "checker: failed to duplicate pipe");
+			break ;
 		default:
-			ft_dprintf(2, "checker: unspecified error");
+			ft_dprintf(2, "checker: unspecified error: ");
 	}
 	if (context)
 		ft_putstr_fd(context, 2);

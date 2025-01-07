@@ -12,6 +12,8 @@
 
 # include "defs.h"
 
+# define _FT_RL_HFILE "~/.rchk_hist"
+
 # include "rl42.h"
 # include "ti42.h"
 # include "libft.h"
@@ -27,6 +29,10 @@ const frame_t	*args_parse(const char *argstr);
 // check.c
 
 void	check(const frame_t *frame);
+
+// interactive.c
+
+u8	interactive(void);
 
 // print.c
 

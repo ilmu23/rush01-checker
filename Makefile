@@ -6,7 +6,7 @@
 #    By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/25 18:02:08 by ivalimak          #+#    #+#              #
-#    Updated: 2025/01/07 14:19:26 by ivalimak         ###   ########.fr        #
+#    Updated: 2025/01/07 17:01:48 by ivalimak         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -63,6 +63,7 @@ SRCFILES	=	main.c \
 				args.c \
 				check.c \
 				err.c \
+				interactive.c \
 				print.c
 
 SRCS	=	$(addprefix $(SRCDIR)/, $(SRCFILES))
