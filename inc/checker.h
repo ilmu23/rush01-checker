@@ -12,6 +12,7 @@
 
 # include "defs.h"
 
+# include "rl42.h"
 # include "ti42.h"
 # include "libft.h"
 # include "ft_stdio/ft_printf.h"
