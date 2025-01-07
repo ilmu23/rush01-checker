@@ -6,7 +6,7 @@
 #    By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/25 18:02:08 by ivalimak          #+#    #+#              #
-#    Updated: 2025/01/07 07:41:18 by ivalimak         ###   ########.fr        #
+#    Updated: 2025/01/07 11:53:58 by ivalimak         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,14 +14,35 @@ NAME	=	checker
 
 BUILD	=	normal
 
+COLOR_FRAME	=	
+COLOR_GRID	=	
+COLOR_OK	=	
+COLOR_KO	=	
+
 CC 				=	cc
-cflags.common	=	-Wall -Wextra -Werror
+cflags.common	=	-Wall -Wextra -Werror -Wpedantic -pedantic-errors -std=c17
 cflags.debug	=	-g
 cflags.debugm	=	$(cflags.debug) -D DEBUG_MSG=1
 cflags.fsan		=	$(cflags.debug) -fsanitize=address,undefined
 cflags.normal	=	-Ofast
 cflags.extra	=	
 CFLAGS			=	$(cflags.common) $(cflags.$(BUILD)) $(cflags.extra)
+
+ifneq ("$(COLOR_FRAME)", "")
+	CFLAGS += -DCOLOR_FRAME=$(COLOR_FRAME)
+endif
+
+ifneq ("$(COLOR_GRID)", "")
+	CFLAGS += -DCOLOR_GRID=$(COLOR_GRID)
+endif
+
+ifneq ("$(COLOR_OK)", "")
+	CFLAGS += -DCOLOR_OK=$(COLOR_OK)
+endif
+
+ifneq ("$(COLOR_KO)", "")
+	CFLAGS += -DCOLOR_KO=$(COLOR_KO)
+endif
 
 LDFLAGS	=	-L$(LFTDIR) -L$(LTIDIR) -lti42 -lft
 
@@ -38,10 +59,9 @@ INC	=	-I$(INCDIR) -I$(LFTDIR)/$(INCDIR) -I$(LTIDIR)/$(INCDIR)
 
 SRCFILES	=	main.c \
 				args.c \
-				input.c \
 				check.c \
-				check2.c \
-				utils.c
+				err.c \
+				print.c
 
 SRCS	=	$(addprefix $(SRCDIR)/, $(SRCFILES))
 OBJS	=	$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS))
