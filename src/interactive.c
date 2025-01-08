@@ -16,13 +16,14 @@
 #define pclose(x)	(close(x[0]), close(x[1]))
 
 frame_t	frame;
+i32		pfd[2];
 
 extern char	**environ;
 
 extern int kill (__pid_t __pid, int __sig) __THROW;
 
-_Noreturn static inline void	_exec_rush(const i32 outfd, char *args);
-_Noreturn static inline void	_exec_checker(const i32 infd, char *args);
+_Noreturn static inline void	_exec_rush(char *args);
+_Noreturn static inline void	_exec_checker(char *args);
 static inline void				_show_args(void);
 static inline void				_set_args(void);
 static inline void				_run(void);
@@ -35,13 +36,13 @@ u8	interactive(void) {
 			.size = 4,
 			.top = ft_memcpy(alloc(9 * sizeof(*frame.top)), (u8 [4]){4, 3, 2, 1}, 4 * sizeof(*frame.top)),
 			.bot = ft_memcpy(alloc(9 * sizeof(*frame.bot)), (u8 [4]){1, 2, 2, 2}, 4 * sizeof(*frame.bot)),
-			.rgt = ft_memcpy(alloc(9 * sizeof(*frame.rgt)), (u8 [4]){4, 3, 2, 1}, 4 * sizeof(*frame.rgt)),
-			.lft = ft_memcpy(alloc(9 * sizeof(*frame.lft)), (u8 [4]){1, 2, 2, 2}, 4 * sizeof(*frame.lft)),
+			.lft = ft_memcpy(alloc(9 * sizeof(*frame.lft)), (u8 [4]){4, 3, 2, 1}, 4 * sizeof(*frame.lft)),
+			.rgt = ft_memcpy(alloc(9 * sizeof(*frame.rgt)), (u8 [4]){1, 2, 2, 2}, 4 * sizeof(*frame.rgt)),
 	};
 	if (!frame.top || !frame.bot || !frame.lft || !frame.rgt)
 		err_exit(E_ALLOC_FAIL, NULL);
 	_show_args();
-	for (line = ft_register(ft_readline("> ", FT_RL_HIST_ON), 0); line; free(line), line = ft_register(ft_readline("> ", FT_RL_HIST_ON), 0)) {
+	for (line = ft_register(ft_readline("> ", FT_RL_HIST_ON), 0); line; line = ft_register(ft_readline("> ", FT_RL_HIST_ON), 0)) {
 		if (ft_strequals(line, "set"))
 			_set_args();
 		else if (ft_strequals(line, "show"))
@@ -56,20 +57,22 @@ u8	interactive(void) {
 	return 0;
 }
 
-_Noreturn static inline void	_exec_rush(const i32 outfd, char *args) {
+_Noreturn static inline void	_exec_rush(char *args) {
 	char	*av[3] = {"rush01", args, NULL};
 
-	if (dup2(1, outfd) == -1)
+	if (dup2(pfd[1], 1) == -1)
 		exit(E_DUP_FAIL);
+	pclose(pfd);
 	execve(av[0], av, environ);
 	exit(E_EXEC_FAIL);
 }
 
-_Noreturn static inline void	_exec_checker(const i32 infd, char *args) {
+_Noreturn static inline void	_exec_checker(char *args) {
 	char	*av[3] = {"checker", args, NULL};
 
-	if (dup2(0, infd) == -1)
+	if (dup2(pfd[0], 0) == -1)
 		exit(E_DUP_FAIL);
+	pclose(pfd);
 	execve(av[0], av, environ);
 	exit(E_EXEC_FAIL);
 }
@@ -135,8 +138,7 @@ ret:
 
 void	_run(void) {
 	pid_t	pids[2];
-	char	buf[256];
-	i32		pfd[2];
+	char	buf[128];
 	i32		estat;
 	u8		i;
 	u8		j;
@@ -162,14 +164,14 @@ void	_run(void) {
 		err_exit(E_PIPE_FAIL, NULL);
 	pids[0] = fork();
 	if (pids[0] == 0)
-		_exec_rush(pfd[1], buf);
+		_exec_rush(buf);
 	if (pids[0] == -1) {
 		pclose(pfd);
 		err_exit(E_FORK_FAIL, NULL);
 	}
 	pids[1] = fork();
 	if (pids[1] == 0)
-		_exec_checker(pfd[0], buf);
+		_exec_checker(buf);
 	if (pids[1] == -1) {
 		pclose(pfd);
 		kill(pids[0], SIGKILL);
@@ -182,6 +184,7 @@ void	_run(void) {
 	if (estat == E_ALLOC_FAIL || estat == E_PIPE_FAIL || estat == E_FORK_FAIL ||
 		estat == E_EXEC_FAIL || estat == E_DUP_FAIL)
 		err_exit(estat, NULL);
+	sleep(5);
 	ft_printf("\x1b[?1049l");
 }
 

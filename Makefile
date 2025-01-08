@@ -6,7 +6,7 @@
 #    By: ivalimak <ivalimak@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/25 18:02:08 by ivalimak          #+#    #+#              #
-#    Updated: 2025/01/07 17:01:48 by ivalimak         ###   ########.fr        #
+#    Updated: 2025/01/08 21:34:43 by ivalimak         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -83,7 +83,7 @@ $(LFT):
 	@make --no-print-directory -C $(LFTDIR) BUILD=$(BUILD) cflags.extra=$(cflags.extra)
 
 $(LRL):
-	@make --no-print-directory -C $(LRLDIR) BUILD=$(BUILD) cflags.extra=$(cflags.extra)
+	@make --no-print-directory -C $(LRLDIR) BUILD=$(BUILD) cflags.extra=$(cflags.extra) HIST_FILE="~/.rchk_history"
 
 $(LTI):
 	@make --no-print-directory -C $(LTIDIR) BUILD=$(BUILD) cflags.extra=$(cflags.extra)

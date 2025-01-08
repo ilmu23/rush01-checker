@@ -51,7 +51,7 @@ void	display_grid(const u64 *grid, const frame_t *frame) {
 	if (ft_putstr_fd("  ", 1) == -1)
 		err_exit(E_STDOUT_WRITE, NULL);
 	for (i = 0; i < frame->size;) {
-		n = _utoa(frame->top[i]);
+		n = _utoa(frame->bot[i]);
 		while (*n)
 			putc_color(*n++, COLOR_FRAME);
 		if (_putc((++i != frame->size) ? ' ' : '\n') == -1)

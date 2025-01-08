@@ -12,8 +12,6 @@
 
 # include "defs.h"
 
-# define _FT_RL_HFILE "~/.rchk_hist"
-
 # include "rl42.h"
 # include "ti42.h"
 # include "libft.h"
