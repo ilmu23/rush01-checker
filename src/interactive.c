@@ -10,10 +10,13 @@
 #include "checker.h"
 
 #include <signal.h>
+#include <termios.h>
 #include <sys/wait.h>
 
 #define free(x)		(free((void *)x))
 #define pclose(x)	(close(x[0]), close(x[1]))
+
+typedef struct termios	tios_t;
 
 frame_t	frame;
 i32		pfd[2];
@@ -24,6 +27,7 @@ extern int kill (__pid_t __pid, int __sig) __THROW;
 
 _Noreturn static inline void	_exec_rush(char *args);
 _Noreturn static inline void	_exec_checker(char *args);
+static inline void				_wait_for_key(void);
 static inline void				_show_args(void);
 static inline void				_set_args(void);
 static inline void				_run(void);
@@ -77,6 +81,24 @@ _Noreturn static inline void	_exec_checker(char *args) {
 	exit(E_EXEC_FAIL);
 }
 
+static inline void	_wait_for_key(void) {
+	static tios_t	old;
+	static tios_t	new;
+	static u8		init;
+	u64				kbuf;
+
+	if (!init) {
+		tcgetattr(0, &old);
+		new = old;
+		new.c_iflag &= ~(ICRNL | IXON);
+		new.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+		init = 1;
+	}
+	tcsetattr(0, TCSANOW, &new);
+	read(0, &kbuf, 8);
+	tcsetattr(0, TCSANOW, &old);
+}
+
 static inline void	_show_args(void) {
 	u8	i;
 
@@ -110,6 +132,7 @@ void	_set_args(void) {
 	argc = _count_args(args);
 	if (argc == 0)
 		goto ret;
+	frame.size = argc;
 	for (i = 0, tmp = frame.top; args[i];) {
 		argval = ft_atou64(args[i]);
 		if (!inrange(argval, 1, frame.size)) {
@@ -184,7 +207,8 @@ void	_run(void) {
 	if (estat == E_ALLOC_FAIL || estat == E_PIPE_FAIL || estat == E_FORK_FAIL ||
 		estat == E_EXEC_FAIL || estat == E_DUP_FAIL)
 		err_exit(estat, NULL);
-	sleep(5);
+	if (estat == 0)
+		_wait_for_key();
 	ft_printf("\x1b[?1049l");
 }
 
