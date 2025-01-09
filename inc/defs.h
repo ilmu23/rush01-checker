@@ -58,6 +58,7 @@ struct frame {
 # define E_FORK_FAIL			13
 # define E_EXEC_FAIL			14
 # define E_DUP_FAIL				15
+# define E_TIMESPEC_FAIL		16
 
 // color codes
 

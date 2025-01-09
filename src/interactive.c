@@ -9,6 +9,7 @@
 
 #include "checker.h"
 
+#include <time.h>
 #include <signal.h>
 #include <termios.h>
 #include <sys/wait.h>
@@ -17,6 +18,7 @@
 #define pclose(x)	(close(x[0]), close(x[1]))
 
 typedef struct termios	tios_t;
+typedef struct timespec	tspec_t;
 
 frame_t	frame;
 i32		pfd[2];
@@ -27,14 +29,17 @@ extern int kill (__pid_t __pid, int __sig) __THROW;
 
 _Noreturn static inline void	_exec_rush(char *args);
 _Noreturn static inline void	_exec_checker(char *args);
+static inline void				_gen_args(const u64 size);
 static inline void				_wait_for_key(void);
 static inline void				_show_args(void);
 static inline void				_set_args(void);
 static inline void				_run(void);
 static inline u8				_count_args(const char **args);
+static inline u8				_rand_range(const u8 min, const u8 max);
 
 u8	interactive(void) {
 	const char	*line;
+	tspec_t		time;
 
 	frame = (frame_t) {
 			.size = 4,
@@ -46,12 +51,15 @@ u8	interactive(void) {
 	if (!frame.top || !frame.bot || !frame.lft || !frame.rgt)
 		err_exit(E_ALLOC_FAIL, NULL);
 	_show_args();
+	if (timespec_get(&time, TIME_UTC) == -1)
+		err_exit(E_TIMESPEC_FAIL, NULL);
+	srand(time.tv_nsec);
 	for (line = ft_register(ft_readline("> ", FT_RL_HIST_ON), 0); line; line = ft_register(ft_readline("> ", FT_RL_HIST_ON), 0)) {
 		if (ft_strequals(line, "set"))
 			_set_args();
 		else if (ft_strequals(line, "show"))
 			_show_args();
-		else if (ft_strequals(line, "run"))
+		else if (ft_strequals(line, "run") || !*line)
 			_run();
 		else if (ft_strequals(line, "exit"))
 			break ;
@@ -79,6 +87,72 @@ _Noreturn static inline void	_exec_checker(char *args) {
 	pclose(pfd);
 	execve(av[0], av, environ);
 	exit(E_EXEC_FAIL);
+}
+
+static inline void	_gen_args(const u64 size) {
+	u8	used_row[9];
+	u8	used_col[9];
+	u8	grid[9][9];
+	u8	visible;
+	u8	highest;
+	u8	row;
+	u8	col;
+	u8	n;
+	u8	i;
+
+	if (!inrange(size, 4, 9)) {
+		ft_printf("args: argument out of range: %llu\n", size);
+		return ;
+	}
+	frame.size = (u8)size;
+	ft_memset(grid, 0, sizeof(grid));
+gen_grid:
+	for (row = 0; row < frame.size; row++) {
+		for (col = 0, ft_memset(used_row, 0, sizeof(used_row)); col < frame.size; col++) {
+			n = _rand_range(1, frame.size);
+			for (i = 0, ft_memset(used_col, 0, sizeof(used_col)); i < row; i++)
+				used_col[grid[i][col] - 1] = 1;
+			for (i = 0; used_row[n - 1] || used_col[n - 1]; i++) {
+				if (i > frame.size * 2)
+					goto gen_grid;
+				n = (n < frame.size) ? n + 1 : 1;
+			}
+			grid[row][col] = n;
+			used_row[n - 1] = 1;
+		}
+	}
+	for (row = 0; row < frame.size; row++) {
+		for (col = visible = highest = 0; col < frame.size; col++) {
+			if (grid[row][col] > highest) {
+				highest = grid[row][col];
+				visible++;
+			}
+		}
+		frame.lft[row] = visible;
+		for (visible = highest = 0; col && highest != frame.size;) {
+			if (grid[row][--col] > highest) {
+				highest = grid[row][col];
+				visible++;
+			}
+		}
+		frame.rgt[row] = visible;
+	}
+	for (col = 0; col < frame.size; col++) {
+		for (row = visible = highest = 0; row < frame.size; row++) {
+			if (grid[row][col] > highest) {
+				highest = grid[row][col];
+				visible++;
+			}
+		}
+		frame.top[col] = visible;
+		for (visible = highest = 0; row && highest != frame.size;) {
+			if (grid[--row][col] > highest) {
+				highest = grid[row][col];
+				visible++;
+			}
+		}
+		frame.bot[col] = visible;
+	}
 }
 
 static inline void	_wait_for_key(void) {
@@ -128,6 +202,11 @@ void	_set_args(void) {
 	if (!args) {
 		free(line);
 		err_exit(E_ALLOC_FAIL, NULL);
+	}
+	if (ft_getblksize(args) == 2 * sizeof(*args)) {
+		_gen_args(ft_atou64(args[0]));
+		ft_popblks(2, args[0], args);
+		goto ret;
 	}
 	argc = _count_args(args);
 	if (argc == 0)
@@ -182,7 +261,7 @@ void	_run(void) {
 		buf[j] = frame.rgt[i] + '0';
 		buf[++j] = (i + 1 != frame.size) ? ' ' : '\0';
 	}
-	ft_printf("\x1b[?1049h");
+	ft_printf("\x1b[?1049h\x1b[?25l");
 	if (pipe(pfd) == -1)
 		err_exit(E_PIPE_FAIL, NULL);
 	pids[0] = fork();
@@ -209,7 +288,7 @@ void	_run(void) {
 		err_exit(estat, NULL);
 	if (estat == 0)
 		_wait_for_key();
-	ft_printf("\x1b[?1049l");
+	ft_printf("\x1b[?1049l\x1b[?25h");
 }
 
 static inline u8	_count_args(const char **args) {
@@ -230,4 +309,8 @@ static inline u8	_count_args(const char **args) {
 		return 0;
 	}
 	return i;
+}
+
+static inline u8	_rand_range(const u8 min, const u8 max) {
+	return rand() % (max - min + 1) + min;
 }
