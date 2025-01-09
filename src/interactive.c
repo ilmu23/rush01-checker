@@ -262,6 +262,7 @@ void	_run(void) {
 		buf[++j] = (i + 1 != frame.size) ? ' ' : '\0';
 	}
 	ft_printf("\x1b[?1049h\x1b[?25l");
+	ft_ti_tputs(ft_ti_tgoto(ft_ti_getstr("cup"), 0, 0), 1, tputc);
 	if (pipe(pfd) == -1)
 		err_exit(E_PIPE_FAIL, NULL);
 	pids[0] = fork();

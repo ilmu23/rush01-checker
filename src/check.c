@@ -43,9 +43,9 @@ void	check(const frame_t *frame) {
 			line[j] = grid[j * frame->size + i];
 		_check_line(line, cnames[i], frame->top[i], frame->bot[i], frame->size);
 	}
-	if (!ko && ft_printf("%sOK!%s\n", ft_ti_tparm(setaf, COLOR_OK), sgr0) == -1)
+	if (!ko && ft_printf("%sOK!%s\n", ft_ti_tparm(ft_ti_getstr("setaf"), COLOR_OK), ft_ti_getstr("sgr0")) == -1)
 		err_exit(E_STDOUT_WRITE, NULL);
-	else if (ko && ft_printf("%sKO!%s\n", ft_ti_tparm(setaf, COLOR_KO), sgr0) == -1)
+	else if (ko && ft_printf("%sKO!%s\n", ft_ti_tparm(ft_ti_getstr("setaf"), COLOR_KO), ft_ti_getstr("sgr0")) == -1)
 		err_exit(E_STDOUT_WRITE, NULL);
 }
 
@@ -55,12 +55,10 @@ static inline void	_check_line(const u64 *line, const char *lname, const u8 hint
 	u8					visible;
 	u8					i;
 
-	if (!sgr0)
-		sgr0 = ft_ti_getstr("sgr0");
 	for (i = sum = 0; i < lsize; i++)
 		sum += line[i];
 	if (sum != sum_tgt) {
-		if (ft_printf("%sInvalid sum on %s%s\n", ft_ti_tparm(setaf, COLOR_KO), lname, sgr0) == -1)
+		if (ft_printf("%sInvalid sum on %s%s\n", ft_ti_tparm(ft_ti_getstr("setaf"), COLOR_KO), lname, ft_ti_getstr("sgr0")) == -1)
 			err_exit(E_STDOUT_WRITE, NULL);
 		ko = 1;
 	}
@@ -71,7 +69,7 @@ static inline void	_check_line(const u64 *line, const char *lname, const u8 hint
 		}
 	}
 	if (visible != hint1) {
-		if (ft_printf("%sExpected %hhu visible numbers at %s %s, found %hhu%s\n", ft_ti_tparm(setaf, COLOR_KO), hint1, lname, (*lname == 'r') ? "left" : "top", visible, sgr0) == -1)
+		if (ft_printf("%sExpected %hhu visible numbers at %s %s, found %hhu%s\n", ft_ti_tparm(ft_ti_getstr("setaf"), COLOR_KO), hint1, lname, (*lname == 'r') ? "left" : "top", visible, ft_ti_getstr("sgr0")) == -1)
 			err_exit(E_STDOUT_WRITE, NULL);
 		ko = 1;
 	}
@@ -82,7 +80,7 @@ static inline void	_check_line(const u64 *line, const char *lname, const u8 hint
 		}
 	}
 	if (visible != hint2) {
-		if (ft_printf("%sExpected %hhu visible numbers at %s %s, found %hhu%s\n", ft_ti_tparm(setaf, COLOR_KO), hint2, lname, (*lname == 'r') ? "right" : "bot", visible, sgr0) == -1)
+		if (ft_printf("%sExpected %hhu visible numbers at %s %s, found %hhu%s\n", ft_ti_tparm(ft_ti_getstr("setaf"), COLOR_KO), hint2, lname, (*lname == 'r') ? "right" : "bot", visible, ft_ti_getstr("sgr0")) == -1)
 			err_exit(E_STDOUT_WRITE, NULL);
 		ko = 1;
 	}

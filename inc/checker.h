@@ -34,9 +34,7 @@ u8	interactive(void);
 
 // print.c
 
-extern const char	*sgr0;
-extern const char	*setaf;
-
+ssize_t	tputc(const i8 c);
 void	display_grid(const u64 *grid, const frame_t *frame);
 void	putc_color(const i8 c, const u8 color);
 
