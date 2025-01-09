@@ -36,12 +36,12 @@ void	check(const frame_t *frame) {
 		sum_tgt += i;
 	for (i = 0; i < frame->size; i++) {
 		ft_memcpy(line, &grid[i * frame->size], frame->size * sizeof(*line));
-		_check_line(line, rnames[i], frame->top[i], frame->bot[i], frame->size);
+		_check_line(line, rnames[i], frame->lft[i], frame->rgt[i], frame->size);
 	}
 	for (i = 0; i < frame->size; i++) {
 		for (j = 0; j < frame->size; j++)
 			line[j] = grid[j * frame->size + i];
-		_check_line(line, cnames[i], frame->lft[i], frame->rgt[i], frame->size);
+		_check_line(line, cnames[i], frame->top[i], frame->bot[i], frame->size);
 	}
 	if (!ko && ft_printf("%sOK!%s\n", ft_ti_tparm(setaf, COLOR_OK), sgr0) == -1)
 		err_exit(E_STDOUT_WRITE, NULL);
