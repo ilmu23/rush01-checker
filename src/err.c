@@ -11,7 +11,7 @@
 #include "checker.h"
 
 _Noreturn void	err_exit(const u8 err, const char *context) {
-	ft_printf("\x1b[?1049l\x1b[?25h");
+	ft_ti_tputs("\x1b[?1049l\x1b[?25h", 1, tputc);
 	switch (err) {
 		case E_INVALID_ARGC:
 			ft_dprintf(2, "checker: invalid argument count");

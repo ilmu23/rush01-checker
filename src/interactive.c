@@ -29,10 +29,11 @@ extern int kill (__pid_t __pid, int __sig) __THROW;
 
 _Noreturn static inline void	_exec_rush(char *args);
 _Noreturn static inline void	_exec_checker(char *args);
-static inline void				_gen_args(const u64 size);
 static inline void				_wait_for_key(void);
 static inline void				_show_args(void);
 static inline void				_set_args(void);
+static inline void				_gen_args(void);
+static inline void				_help(void);
 static inline void				_run(void);
 static inline u8				_count_args(const char **args);
 static inline u8				_rand_range(const u8 min, const u8 max);
@@ -50,6 +51,7 @@ u8	interactive(void) {
 	};
 	if (!frame.top || !frame.bot || !frame.lft || !frame.rgt)
 		err_exit(E_ALLOC_FAIL, NULL);
+	_help();
 	_show_args();
 	if (timespec_get(&time, TIME_UTC) == -1)
 		err_exit(E_TIMESPEC_FAIL, NULL);
@@ -57,6 +59,8 @@ u8	interactive(void) {
 	for (line = ft_register(ft_readline("> ", FT_RL_HIST_ON), 0); line; line = ft_register(ft_readline("> ", FT_RL_HIST_ON), 0)) {
 		if (ft_strequals(line, "set"))
 			_set_args();
+		else if (ft_strequals(line, "gen"))
+			_gen_args();
 		else if (ft_strequals(line, "show"))
 			_show_args();
 		else if (ft_strequals(line, "run") || !*line)
@@ -64,7 +68,7 @@ u8	interactive(void) {
 		else if (ft_strequals(line, "exit"))
 			break ;
 		else
-			ft_printf("unrecognized command: %s\n", line);
+			_help();
 	}
 	return 0;
 }
@@ -87,72 +91,6 @@ _Noreturn static inline void	_exec_checker(char *args) {
 	pclose(pfd);
 	execve(av[0], av, environ);
 	exit(E_EXEC_FAIL);
-}
-
-static inline void	_gen_args(const u64 size) {
-	u8	used_row[9];
-	u8	used_col[9];
-	u8	grid[9][9];
-	u8	visible;
-	u8	highest;
-	u8	row;
-	u8	col;
-	u8	n;
-	u8	i;
-
-	if (!inrange(size, 4, 9)) {
-		ft_printf("args: argument out of range: %llu\n", size);
-		return ;
-	}
-	frame.size = (u8)size;
-	ft_memset(grid, 0, sizeof(grid));
-gen_grid:
-	for (row = 0; row < frame.size; row++) {
-		for (col = 0, ft_memset(used_row, 0, sizeof(used_row)); col < frame.size; col++) {
-			n = _rand_range(1, frame.size);
-			for (i = 0, ft_memset(used_col, 0, sizeof(used_col)); i < row; i++)
-				used_col[grid[i][col] - 1] = 1;
-			for (i = 0; used_row[n - 1] || used_col[n - 1]; i++) {
-				if (i > frame.size * 2)
-					goto gen_grid;
-				n = (n < frame.size) ? n + 1 : 1;
-			}
-			grid[row][col] = n;
-			used_row[n - 1] = 1;
-		}
-	}
-	for (row = 0; row < frame.size; row++) {
-		for (col = visible = highest = 0; col < frame.size; col++) {
-			if (grid[row][col] > highest) {
-				highest = grid[row][col];
-				visible++;
-			}
-		}
-		frame.lft[row] = visible;
-		for (visible = highest = 0; col && highest != frame.size;) {
-			if (grid[row][--col] > highest) {
-				highest = grid[row][col];
-				visible++;
-			}
-		}
-		frame.rgt[row] = visible;
-	}
-	for (col = 0; col < frame.size; col++) {
-		for (row = visible = highest = 0; row < frame.size; row++) {
-			if (grid[row][col] > highest) {
-				highest = grid[row][col];
-				visible++;
-			}
-		}
-		frame.top[col] = visible;
-		for (visible = highest = 0; row && highest != frame.size;) {
-			if (grid[--row][col] > highest) {
-				highest = grid[row][col];
-				visible++;
-			}
-		}
-		frame.bot[col] = visible;
-	}
 }
 
 static inline void	_wait_for_key(void) {
@@ -203,11 +141,6 @@ void	_set_args(void) {
 		free(line);
 		err_exit(E_ALLOC_FAIL, NULL);
 	}
-	if (ft_getblksize(args) == 2 * sizeof(*args)) {
-		_gen_args(ft_atou64(args[0]));
-		ft_popblks(2, args[0], args);
-		goto ret;
-	}
 	argc = _count_args(args);
 	if (argc == 0)
 		goto ret;
@@ -215,7 +148,7 @@ void	_set_args(void) {
 	for (i = 0, tmp = frame.top; args[i];) {
 		argval = ft_atou64(args[i]);
 		if (!inrange(argval, 1, frame.size)) {
-			ft_printf("args: argument out of range: %llu\n", argval);
+			ft_printf("args: set: argument out of range: %llu\n", argval);
 			goto ret;
 		}
 		tmp[i % frame.size] = (u8)argval;
@@ -236,6 +169,96 @@ void	_set_args(void) {
 	ft_popblk(args);
 ret:
 	free(line);
+}
+
+static inline void	_gen_args(void) {
+	const char	*line;
+	u8	used_row[9];
+	u8	used_col[9];
+	u8	grid[9][9];
+	u8	visible;
+	u8	highest;
+	u8	size;
+	u8	row;
+	u8	col;
+	u8	n;
+	u8	i;
+
+
+	line = ft_readline("Enter grid size > ", FT_RL_HIST_ON);
+	if (!line)
+		return ;
+	if (!ft_isuint(line, 1)) {
+		ft_printf("args: gen: argument not a valid integer: '%s'\n", line);
+		free(line);
+		return ;
+	}
+	size = ft_atou8(line);
+	free(line);
+	if (!inrange(size, 4, 9)) {
+		ft_printf("args: gen: argument out of range: %llu\n", size);
+		return ;
+	}
+	frame.size = size;
+	ft_memset(grid, 0, sizeof(grid));
+gen_grid:
+	for (row = 0; row < frame.size; row++) {
+		for (col = 0, ft_memset(used_row, 0, sizeof(used_row)); col < frame.size; col++) {
+			n = _rand_range(1, frame.size);
+			for (i = 0, ft_memset(used_col, 0, sizeof(used_col)); i < row; i++)
+				used_col[grid[i][col] - 1] = 1;
+			for (i = 0; used_row[n - 1] || used_col[n - 1]; i++) {
+				if (i > frame.size * 2)
+					goto gen_grid;
+				n = (n < frame.size) ? n + 1 : 1;
+			}
+			grid[row][col] = n;
+			used_row[n - 1] = 1;
+		}
+	}
+	for (row = 0; row < frame.size; row++) {
+		for (col = visible = highest = 0; col < frame.size; col++) {
+			if (grid[row][col] > highest) {
+				highest = grid[row][col];
+				visible++;
+			}
+		}
+		frame.lft[row] = visible;
+		for (visible = highest = 0; col && highest != frame.size;) {
+			if (grid[row][--col] > highest) {
+				highest = grid[row][col];
+				visible++;
+			}
+		}
+		frame.rgt[row] = visible;
+	}
+	for (col = 0; col < frame.size; col++) {
+		for (row = visible = highest = 0; row < frame.size; row++) {
+			if (grid[row][col] > highest) {
+				highest = grid[row][col];
+				visible++;
+			}
+		}
+		frame.top[col] = visible;
+		for (visible = highest = 0; row && highest != frame.size;) {
+			if (grid[--row][col] > highest) {
+				highest = grid[row][col];
+				visible++;
+			}
+		}
+		frame.bot[col] = visible;
+	}
+}
+
+static inline void	_help(void) {
+	static const char	*help = "Available commands:\n\
+	set\tSet arguments for future executions.\n\
+	gen\tGenerate a set of arguments for future executions.\n\
+	show\tPrint the currently set arguments.\n\
+	run\tExecutes the project and the checker with the currently set arguments.\n\
+	exit\tExits the checker.\n";
+
+	ft_ti_tputs(help, 1, tputc);
 }
 
 void	_run(void) {
@@ -261,7 +284,7 @@ void	_run(void) {
 		buf[j] = frame.rgt[i] + '0';
 		buf[++j] = (i + 1 != frame.size) ? ' ' : '\0';
 	}
-	ft_printf("\x1b[?1049h\x1b[?25l");
+	ft_ti_tputs("\x1b[?1049h\x1b[?25l", 1, tputc);
 	ft_ti_tputs(ft_ti_tgoto(ft_ti_getstr("cup"), 0, 0), 1, tputc);
 	if (pipe(pfd) == -1)
 		err_exit(E_PIPE_FAIL, NULL);
@@ -289,7 +312,7 @@ void	_run(void) {
 		err_exit(estat, NULL);
 	if (estat == 0)
 		_wait_for_key();
-	ft_printf("\x1b[?1049l\x1b[?25h");
+	ft_ti_tputs("\x1b[?1049l\x1b[?25h", 1, tputc);
 }
 
 static inline u8	_count_args(const char **args) {
@@ -298,15 +321,15 @@ static inline u8	_count_args(const char **args) {
 	for (i = 0; args[i]; i++)
 		;
 	if (i % 4) {
-		ft_printf("args: argument count not divisible by 4");
+		ft_ti_tputs("args: argument count not divisible by 4", 1, tputc);
 		return 0;
 	}
 	i /= 4;
 	if (!inrange(i, 4, 9)) {
 		if (i < 4) 
-			ft_printf("args: not enough args\n");
+			ft_ti_tputs("args: not enough args\n", 1, tputc);
 		else
-			ft_printf("args: too many args\n");
+			ft_ti_tputs("args: too many args\n", 1, tputc);
 		return 0;
 	}
 	return i;
